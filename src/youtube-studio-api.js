@@ -181,6 +181,28 @@ async function setMonetisation(monetizationSettings) {
         .then(res => res.json())
 }
 
+async function setComments(commentSettings) {
+    let requestBody;
+
+    requestBody = _.cloneDeep(metadata_update_request_payload)
+
+    _.set(requestBody, 'context.user.onBehalfOfUser', config.DELEGATED_SESSION_ID);
+    _.set(requestBody, 'context.request.sessionInfo.token', sessionToken);
+
+    requestBody = {
+        ...requestBody,
+        ...commentSettings
+    }
+
+    //console.log(requestBody);
+
+    return fetch(`${YT_STUDIO_URL}/youtubei/v1/video_manager/metadata_update?alt=json&key=${config.INNERTUBE_API_KEY}`, {
+        method: 'POST',
+        headers,
+        body: `${JSON.stringify(requestBody)}`
+    })
+        .then(res => res.json())
+}
 
 async function getVideoClaims(videoId) {
     const template = _.cloneDeep(get_creator_videos_template)
@@ -429,61 +451,20 @@ const edit_video_template = {
 const metadata_update_request_payload = {
     "encryptedVideoId": "",
     "videoReadMask": {},
-    "monetizationSettings": {
-        "newMonetizeWithAds": true
-    },
-    "selfCertification": {
-        "newSelfCertificationData": {
-            "questionnaireAnswers": [
-                {
-                    "question": "VIDEO_SELF_CERTIFICATION_QUESTION_PY",
-                    "answer": "VIDEO_SELF_CERTIFICATION_ANSWER_SKIPPED"
-                },
-                {
-                    "question": "VIDEO_SELF_CERTIFICATION_QUESTION_SC",
-                    "answer": "VIDEO_SELF_CERTIFICATION_ANSWER_SKIPPED"
-                },
-                {
-                    "question": "VIDEO_SELF_CERTIFICATION_QUESTION_VG",
-                    "answer": "VIDEO_SELF_CERTIFICATION_ANSWER_SKIPPED"
-                },
-                {
-                    "question": "VIDEO_SELF_CERTIFICATION_QUESTION_HD",
-                    "answer": "VIDEO_SELF_CERTIFICATION_ANSWER_SKIPPED"
-                },
-                {
-                    "question": "VIDEO_SELF_CERTIFICATION_QUESTION_DG",
-                    "answer": "VIDEO_SELF_CERTIFICATION_ANSWER_SKIPPED"
-                },
-                {
-                    "question": "VIDEO_SELF_CERTIFICATION_QUESTION_HH",
-                    "answer": "VIDEO_SELF_CERTIFICATION_ANSWER_SKIPPED"
-                },
-                {
-                    "question": "VIDEO_SELF_CERTIFICATION_QUESTION_FM",
-                    "answer": "VIDEO_SELF_CERTIFICATION_ANSWER_SKIPPED"
-                },
-                {
-                    "question": "VIDEO_SELF_CERTIFICATION_QUESTION_SE",
-                    "answer": "VIDEO_SELF_CERTIFICATION_ANSWER_SKIPPED"
-                },
-                {
-                    "question": "VIDEO_SELF_CERTIFICATION_QUESTION_SK",
-                    "answer": "VIDEO_SELF_CERTIFICATION_ANSWER_SKIPPED"
-                }
-            ],
-            "certificationMethod": "VIDEO_SELF_CERTIFICATION_METHOD_DEFAULT_NONE",
-            "questionnaireVersion": "VIDEO_SELF_CERTIFICATION_QUESTIONNAIRE_VERSION_8"
-        }
+    "commentOptions": {
+        "newAllowComments": false,
+        "newAllowCommentsMode": "UNKNOWN_COMMENT_ALLOWED_MODE",
+        "newCanViewRatings": true,
+        "newDefaultSortOrder": "MDE_COMMENT_SORT_ORDER_TOP"
     },
     "context": {
         "client": {
             "clientName": 62,
-            "clientVersion": "1.20210104.03.01",
+            "clientVersion": "1.20220103.03.01",
             "hl": "en-GB",
-            "gl": "PL",
+            "gl": "DE",
             "experimentsToken": "",
-            "utcOffsetMinutes": 60
+            "utcOffsetMinutes": 60,
         },
         "request": {
             "returnLogEntry": true,
@@ -598,5 +579,6 @@ module.exports = {
     getDebugInfo,
     setInfoCards,
     getVideoClaims,
-    upload
+    upload,
+    setComments
 }
